@@ -1,0 +1,25 @@
+.- UniTools Configurations Center -.
+This configuration will allow if one button/section is enabled or disabled by choice.
+This is connected on the application itself, You can't change it
+
+X - Disabled
+O - Enabled
+(no text) - Enabled on default (for ex: [Hi] - )
+
+Section: Flashing
+	[Unlock Bootloader] - X
+	[Add Partition] - X
+	[Flash Queue] - O
+	[Partition Flashing] - O
+
+Section: Backup
+	[Backup Presets] - O
+	[Select Partitions] - O
+	[Restore Backup] - O
+
+Section: Tools
+	[Device Maintenance] - X (Keep Wipe userdata, Disable Verity, Reset FRP)
+	[The Rest] - O
+
+Section: Files
+	[The Rest] - O

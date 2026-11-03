@@ -1,0 +1,6 @@
+{
+  "summary":  "Implementation plan for UniTools update: USB auto-detection with live status pill and auto-configured SoC detection, removal of binary setup status text, removal of the top app bar icon, addition of a dedicated Files Tab with interactive breadcrumb folder tree navigation (FDLs hierarchy and Internal Tool Files), full file manager operations (rename, export, permissions, import, and add files), and compilation of the output APK to the main root folder.",
+  "updatedAt":  "2026-11-02T12:50:38.341777508Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

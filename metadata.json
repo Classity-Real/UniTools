@@ -1,0 +1,6 @@
+{
+  "name": "UniTools",
+  "description": "Unisoc / Spreadtrum device flashing, partition backup and restore, bootloader unlock, and maintenance utility with root execution and real-time live console.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
