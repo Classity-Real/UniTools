@@ -57,11 +57,13 @@ import com.example.model.SocType
 import com.example.ui.UniToolsUiState
 import com.example.ui.theme.StatusAmber
 import com.example.ui.theme.StatusGreen
+import java.io.File
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HeaderConfigCard(
     uiState: UniToolsUiState,
+    binariesDir: File,
     onSelectSoc: (SocType) -> Unit,
     onSelectBrand: (DeviceBrand) -> Unit,
     onToggleHexMode: () -> Unit,
@@ -202,6 +204,7 @@ fun HeaderConfigCard(
     if (showConfigSheet) {
         ConfigBottomSheet(
             uiState = uiState,
+            binariesDir = binariesDir,
             onSelectSoc = { onSelectSoc(it) },
             onSelectBrand = { onSelectBrand(it) },
             onSelectRebootMode = onSelectRebootMode,
@@ -214,12 +217,21 @@ fun HeaderConfigCard(
 @Composable
 fun ConfigBottomSheet(
     uiState: UniToolsUiState,
+    binariesDir: File,
     onSelectSoc: (SocType) -> Unit,
     onSelectBrand: (DeviceBrand) -> Unit,
     onSelectRebootMode: (RebootMode) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val availableSoCs = remember(binariesDir, uiState.fileRefreshTrigger) {
+        SocType.getAvailableSoCs(binariesDir)
+    }
+
+    val availableBrands = remember(binariesDir, uiState.selectedSoc, uiState.fileRefreshTrigger) {
+        DeviceBrand.getAvailableBrands(binariesDir, uiState.selectedSoc.id)
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -257,9 +269,9 @@ fun ConfigBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                SocType.values().forEach { soc ->
+                availableSoCs.forEach { soc ->
                     FilterChip(
-                        selected = uiState.selectedSoc == soc,
+                        selected = uiState.selectedSoc.id.equals(soc.id, ignoreCase = true),
                         onClick = { onSelectSoc(soc) },
                         label = { Text(soc.label) },
                         shape = RoundedCornerShape(12.dp)
@@ -282,9 +294,9 @@ fun ConfigBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                uiState.selectedSoc.supportedBrands.forEach { brand ->
+                availableBrands.forEach { brand ->
                     FilterChip(
-                        selected = uiState.selectedBrand == brand,
+                        selected = uiState.selectedBrand.id.equals(brand.id, ignoreCase = true),
                         onClick = { onSelectBrand(brand) },
                         label = { Text(brand.displayName) },
                         shape = RoundedCornerShape(12.dp)

@@ -29,8 +29,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -44,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -61,6 +60,8 @@ import com.example.ui.screens.BackupRestoreScreen
 import com.example.ui.screens.FilesScreen
 import com.example.ui.screens.FlashingScreen
 import com.example.ui.screens.ToolsScreen
+import com.example.ui.components.KernelSuNavigationBar
+import com.example.ui.components.NavigationItem
 import com.example.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -83,10 +84,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 val uiState by viewModel.uiState.collectAsState()
+
                 Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .statusBarsPadding(), // Keeps padding away from the transparent status bar!
+                    modifier = Modifier.fillMaxSize(),
                     contentWindowInsets = WindowInsets(0, 0, 0, 0),
                     topBar = {
                         TopAppBar(
@@ -98,59 +98,48 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(start = 8.dp)
                                 )
                             },
-                            navigationIcon = {},
-                            actions = {},
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.surface
+                                containerColor = Color.Transparent
                             ),
-                            windowInsets = WindowInsets(0, 0, 0, 0)
+                            windowInsets = WindowInsets(0, 0, 0, 0),
+                            modifier = Modifier.statusBarsPadding()
                         )
                     },
                     bottomBar = {
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .navigationBarsPadding(), // Protects from phone navigation bar / taskbar!
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .navigationBarsPadding(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            ConsoleBottomSheet(
-                                logs = uiState.logs,
-                                isExecuting = uiState.isExecuting,
-                                currentTask = uiState.currentTaskDescription,
-                                isExpanded = uiState.isConsoleExpanded,
-                                onToggleExpand = { viewModel.toggleConsoleExpanded(it) },
-                                onClearLogs = { viewModel.clearLogs() },
-                                onCancelTask = { viewModel.cancelOperation() }
+                            KernelSuNavigationBar(
+                                items = listOf(
+                                    NavigationItem(
+                                        title = "Flashing",
+                                        icon = Icons.Default.FlashOn,
+                                        selected = uiState.activeTab == 0,
+                                        onClick = { viewModel.setTab(0) }
+                                    ),
+                                    NavigationItem(
+                                        title = "Backup",
+                                        icon = Icons.Default.Backup,
+                                        selected = uiState.activeTab == 1,
+                                        onClick = { viewModel.setTab(1) }
+                                    ),
+                                    NavigationItem(
+                                        title = "Tools",
+                                        icon = Icons.Default.Build,
+                                        selected = uiState.activeTab == 2,
+                                        onClick = { viewModel.setTab(2) }
+                                    ),
+                                    NavigationItem(
+                                        title = "Files",
+                                        icon = Icons.Default.Folder,
+                                        selected = uiState.activeTab == 3,
+                                        onClick = { viewModel.setTab(3) }
+                                    )
+                                )
                             )
-
-                            NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ) {
-                                NavigationBarItem(
-                                    selected = uiState.activeTab == 0,
-                                    onClick = { viewModel.setTab(0) },
-                                    icon = { Icon(Icons.Default.FlashOn, contentDescription = "Flashing") },
-                                    label = { Text("Flashing") }
-                                )
-                                NavigationBarItem(
-                                    selected = uiState.activeTab == 1,
-                                    onClick = { viewModel.setTab(1) },
-                                    icon = { Icon(Icons.Default.Backup, contentDescription = "Backup") },
-                                    label = { Text("Backup") }
-                                )
-                                NavigationBarItem(
-                                    selected = uiState.activeTab == 2,
-                                    onClick = { viewModel.setTab(2) },
-                                    icon = { Icon(Icons.Default.Build, contentDescription = "Tools") },
-                                    label = { Text("Tools") }
-                                )
-                                NavigationBarItem(
-                                    selected = uiState.activeTab == 3,
-                                    onClick = { viewModel.setTab(3) },
-                                    icon = { Icon(Icons.Default.Folder, contentDescription = "Files") },
-                                    label = { Text("Files") }
-                                )
-                            }
                         }
                     }
                 ) { innerPadding ->
@@ -164,10 +153,25 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel,
                             modifier = Modifier.fillMaxSize()
                         )
+
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                        ) {
+                            ConsoleBottomSheet(
+                                logs = uiState.logs,
+                                isExecuting = uiState.isExecuting,
+                                currentTask = uiState.currentTaskDescription,
+                                isExpanded = uiState.isConsoleExpanded,
+                                onToggleExpand = { viewModel.toggleConsoleExpanded(it) },
+                                onClearLogs = { viewModel.clearLogs() },
+                                onCancelTask = { viewModel.cancelOperation() }
+                            )
+                        }
                     }
                 }
 
-                // Hardware Connection Guidance Modal before running spd_dump
                 if (uiState.showHardwareDialog) {
                     HardwareGuidanceDialog(
                         actionName = uiState.pendingActionName,
@@ -237,6 +241,7 @@ fun MainContentColumn(
         ) {
             HeaderConfigCard(
                 uiState = uiState,
+                binariesDir = viewModel.binaryManager.binariesDir,
                 onSelectSoc = { viewModel.selectSoc(it) },
                 onSelectBrand = { viewModel.selectBrand(it) },
                 onToggleHexMode = { viewModel.toggleHexMode() },
@@ -272,10 +277,7 @@ fun MainContentColumn(
             3 -> FilesScreen(
                 uiState = uiState,
                 binariesDir = viewModel.binaryManager.binariesDir,
-                onOpenFdls = { viewModel.openFdlsDirectory() },
-                onOpenSoc = { viewModel.openFdlSoc(it) },
-                onOpenBrand = { viewModel.openFdlBrand(it) },
-                onOpenInternalTools = { viewModel.openInternalToolsDirectory(it) },
+                onOpenDirectory = { viewModel.openDirectory(it) },
                 onNavigateBack = { viewModel.navigateFilesBack() },
                 onResetNav = { viewModel.resetFilesNavigation() },
                 onImportFiles = { uris, dir -> viewModel.importFilesToDirectory(uris, dir) },

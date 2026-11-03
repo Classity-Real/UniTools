@@ -35,3 +35,12 @@ val TerminalBg = Color(0xFF141A19)
 val TerminalText = Color(0xFFE0F2F1)
 val TerminalCmd = Color(0xFF80CBC4)
 val TerminalErr = Color(0xFFFF8A80)
+
+// Blue Rectangle Navigation Bar & Console Colors (from screenshot)
+val BlueRectangleNavBarBg = Color(0xFF161C28)
+val BlueRectangleIndicator = Color(0xFF28364E)
+val BlueRectangleIconSelected = Color(0xFF8AB4F8)
+val BlueRectangleIconUnselected = Color(0xFF8E9BAE)
+val BlueRectangleTextSelected = Color(0xFF8AB4F8)
+val BlueRectangleTextUnselected = Color(0xFF8E9BAE)
+

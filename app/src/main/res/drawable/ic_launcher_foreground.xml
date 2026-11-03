@@ -3,17 +3,10 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- UniTools Hamburger Icon (3 rounded horizontal lines) -->
-    <!-- Top line -->
     <path
-        android:fillColor="#E0F2F1"
-        android:pathData="M38,41h32c2.2,0 4,1.8 4,4s-1.8,4 -4,4H38c-2.2,0 -4,-1.8 -4,-4s1.8,-4 4,-4z" />
-    <!-- Middle line -->
-    <path
-        android:fillColor="#80CBC4"
-        android:pathData="M38,50h32c2.2,0 4,1.8 4,4s-1.8,4 -4,4H38c-2.2,0 -4,-1.8 -4,-4s1.8,-4 4,-4z" />
-    <!-- Bottom line -->
-    <path
-        android:fillColor="#E0F2F1"
-        android:pathData="M38,59h32c2.2,0 4,1.8 4,4s-1.8,4 -4,4H38c-2.2,0 -4,-1.8 -4,-4s1.8,-4 4,-4z" />
+        android:strokeColor="#9DF2E8"
+        android:strokeWidth="14"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M26,64 L54,36 L82,64" />
 </vector>

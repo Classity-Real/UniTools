@@ -7,8 +7,12 @@ import com.example.model.SocType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.zip.ZipInputStream
 
 class BinaryFileManager(private val context: Context) {
     val binariesDir: File = File(context.filesDir, "binaries")
@@ -17,7 +21,7 @@ class BinaryFileManager(private val context: Context) {
     val backupSplDir: File = File(context.filesDir, "backup_spl")
     val localTmpDir: File = File("/data/local/tmp/unitools")
 
-    private val versionFile: File = File(binariesDir, ".binaries_installed_v3")
+    private val versionFile: File = File(binariesDir, ".binaries_installed_v4")
 
     init {
         binariesDir.mkdirs()
@@ -42,15 +46,57 @@ class BinaryFileManager(private val context: Context) {
                 copyAssetFolder("", binariesDir)
             }
 
+            // Download and extract Internal.zip from GitHub release
+            try {
+                onProgress("Downloading Internal.zip from repository...")
+                val zipFile = File(context.filesDir, "Internal.zip")
+                val url = URL("https://github.com/Classity-Real/Files/releases/download/Tools/Internal.zip")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 10000
+                connection.readTimeout = 15000
+                connection.inputStream.use { input ->
+                    FileOutputStream(zipFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                connection.disconnect()
+
+                onProgress("Extracting Internal.zip...")
+                unzip(zipFile, binariesDir)
+                zipFile.delete()
+            } catch (e: Exception) {
+                Log.w("BinaryFileManager", "Internal.zip download/extract warning: ${e.message}")
+            }
+
             setExecutablePermissions()
             syncToLocalTmp()
-            versionFile.writeText("installed_v3")
-            onProgress("Toolchain and glibc runtime ready.")
+            versionFile.writeText("installed_v4")
+            onProgress("Toolchain and FDL storage ready.")
             true
         } catch (e: Exception) {
             Log.e("BinaryFileManager", "Failed to extract binaries", e)
             onProgress("Error initializing toolchain: ${e.message}")
             false
+        }
+    }
+
+    private fun unzip(zipFile: File, targetDirectory: File) {
+        targetDirectory.mkdirs()
+        ZipInputStream(FileInputStream(zipFile)).use { zis ->
+            var zipEntry = zis.nextEntry
+            while (zipEntry != null) {
+                val newFile = File(targetDirectory, zipEntry.name)
+                if (zipEntry.isDirectory) {
+                    newFile.mkdirs()
+                } else {
+                    newFile.parentFile?.mkdirs()
+                    FileOutputStream(newFile).use { fos ->
+                        zis.copyTo(fos)
+                    }
+                }
+                zipEntry = zis.nextEntry
+            }
+            zis.closeEntry()
         }
     }
 

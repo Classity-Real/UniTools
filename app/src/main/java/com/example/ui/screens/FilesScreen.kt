@@ -31,9 +31,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.InsertDriveFile
-import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Terminal
@@ -62,10 +60,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
-import com.example.model.DeviceBrand
-import com.example.model.SocType
 import com.example.ui.FilesNavMode
 import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
@@ -81,10 +76,7 @@ import java.util.Locale
 fun FilesScreen(
     uiState: UniToolsUiState,
     binariesDir: File,
-    onOpenFdls: () -> Unit,
-    onOpenSoc: (SocType) -> Unit,
-    onOpenBrand: (DeviceBrand) -> Unit,
-    onOpenInternalTools: (File?) -> Unit,
+    onOpenDirectory: (File) -> Unit,
     onNavigateBack: () -> Unit,
     onResetNav: () -> Unit,
     onImportFiles: (List<Uri>, File) -> Unit,
@@ -96,20 +88,8 @@ fun FilesScreen(
 ) {
     val context = LocalContext.current
 
-    val currentTargetDir = remember(uiState.filesNavMode, uiState.fdlSelectedSoc, uiState.fdlSelectedBrand, uiState.internalSubdir, uiState.fileRefreshTrigger) {
-        when (uiState.filesNavMode) {
-            FilesNavMode.INTERNAL_TOOLS -> uiState.internalSubdir ?: binariesDir
-            FilesNavMode.FDL_FILE_LIST -> {
-                val soc = uiState.fdlSelectedSoc?.id ?: "ums9230"
-                val brand = uiState.fdlSelectedBrand?.id ?: "infinix"
-                File(File(binariesDir, soc), brand)
-            }
-            FilesNavMode.FDL_BRAND_LIST -> {
-                val soc = uiState.fdlSelectedSoc?.id ?: "ums9230"
-                File(binariesDir, soc)
-            }
-            else -> binariesDir
-        }
+    val currentTargetDir = remember(uiState.currentFileDir, binariesDir, uiState.fileRefreshTrigger) {
+        uiState.currentFileDir ?: binariesDir
     }
 
     val currentFileList = remember(currentTargetDir, uiState.fileRefreshTrigger) {
@@ -137,7 +117,7 @@ fun FilesScreen(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Group 1: File Actions (Import, Add Files, Add Folder, Reset)
+        // Group 1: File Actions (Import, Add Files, New Folder, Reset)
         item {
             Android15CardGroup {
                 Row(
@@ -182,8 +162,8 @@ fun FilesScreen(
             }
         }
 
-        // Breadcrumb Navigation Row (if inside a directory)
-        if (uiState.filesNavMode != FilesNavMode.WHICH_DIRECTORY) {
+        // Breadcrumb Navigation Row (if inside a subdirectory)
+        if (currentTargetDir != binariesDir) {
             item {
                 Row(
                     modifier = Modifier
@@ -196,119 +176,40 @@ fun FilesScreen(
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                     BreadcrumbsRow(
-                        navMode = uiState.filesNavMode,
-                        soc = uiState.fdlSelectedSoc,
-                        brand = uiState.fdlSelectedBrand,
-                        internalSubdir = uiState.internalSubdir,
+                        currentDir = currentTargetDir,
                         binariesDir = binariesDir,
                         onResetNav = onResetNav,
-                        onOpenFdls = onOpenFdls,
-                        onOpenSoc = { onOpenSoc(it) }
+                        onOpenDirectory = onOpenDirectory
                     )
                 }
             }
         }
 
-        // Group 2: Content based on navigation mode
-        when (uiState.filesNavMode) {
-            FilesNavMode.WHICH_DIRECTORY -> {
-                item {
-                    Android15CardGroup {
-                        Android15GroupRow(
-                            title = "FDLs",
-                            subtitle = "UMS9230, SC9863A, UMS512 > Brands > FDL loaders",
-                            icon = Icons.Default.Folder,
-                            iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            onClick = onOpenFdls,
-                            modifier = Modifier.testTag("card_fdls_directory")
+        // Group 2: Content Browser
+        item {
+            if (currentFileList.isEmpty()) {
+                Android15CardGroup {
+                    Text(
+                        text = "Folder '${currentTargetDir.name}' is empty. Use 'New Folder', 'Import' or 'Add Files' to add content.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            } else {
+                Android15CardGroup {
+                    currentFileList.forEachIndexed { index, file ->
+                        FileItemRow(
+                            file = file,
+                            onClick = { if (file.isDirectory) onOpenDirectory(file) else fileDetails = file },
+                            onRename = { fileToRename = file },
+                            onDelete = { fileToDelete = file },
+                            onDetails = { fileDetails = file },
+                            onToggleExec = { onToggleExecutable(file) },
+                            onShare = { fileSharing(context, file) }
                         )
-
-                        Android15GroupDivider()
-
-                        Android15GroupRow(
-                            title = "Internal Tool Files",
-                            subtitle = "Open internal storage (spd_dump, gen_spl-unlock, configs, inputs)",
-                            icon = Icons.Default.Terminal,
-                            iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
-                            onClick = { onOpenInternalTools(null) },
-                            modifier = Modifier.testTag("card_internal_tools_directory")
-                        )
-                    }
-                }
-            }
-
-            FilesNavMode.FDL_SOC_LIST -> {
-                item {
-                    Android15CardGroup {
-                        SocType.values().forEachIndexed { index, soc ->
-                            Android15GroupRow(
-                                title = soc.label,
-                                subtitle = "Supported Brands: ${soc.supportedBrands.joinToString { it.displayName }}",
-                                icon = Icons.Default.Memory,
-                                iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                onClick = { onOpenSoc(soc) }
-                            )
-                            if (index < SocType.values().size - 1) {
-                                Android15GroupDivider()
-                            }
-                        }
-                    }
-                }
-            }
-
-            FilesNavMode.FDL_BRAND_LIST -> {
-                val soc = uiState.fdlSelectedSoc ?: SocType.UMS9230
-                item {
-                    Android15CardGroup {
-                        soc.supportedBrands.forEachIndexed { index, brand ->
-                            Android15GroupRow(
-                                title = brand.displayName,
-                                subtitle = "FDL loaders for ${soc.label}",
-                                icon = Icons.Default.PhoneAndroid,
-                                iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                onClick = { onOpenBrand(brand) }
-                            )
-                            if (index < soc.supportedBrands.size - 1) {
-                                Android15GroupDivider()
-                            }
-                        }
-                    }
-                }
-            }
-
-            FilesNavMode.FDL_FILE_LIST, FilesNavMode.INTERNAL_TOOLS -> {
-                if (currentFileList.isEmpty()) {
-                    item {
-                        Android15CardGroup {
-                            Text(
-                                text = "Folder '${currentTargetDir.name}' is empty. Use 'New Folder', 'Import' or 'Add Files' to add content.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(12.dp)
-                            )
-                        }
-                    }
-                } else {
-                    item {
-                        Android15CardGroup {
-                            currentFileList.forEachIndexed { index, file ->
-                                FileItemRow(
-                                    file = file,
-                                    onClick = { if (file.isDirectory) onOpenInternalTools(file) else fileDetails = file },
-                                    onRename = { fileToRename = file },
-                                    onDelete = { fileToDelete = file },
-                                    onDetails = { fileDetails = file },
-                                    onToggleExec = { onToggleExecutable(file) },
-                                    onShare = { shareFile(context, file) }
-                                )
-                                if (index < currentFileList.size - 1) {
-                                    Android15GroupDivider()
-                                }
-                            }
+                        if (index < currentFileList.size - 1) {
+                            Android15GroupDivider()
                         }
                     }
                 }
@@ -336,7 +237,7 @@ fun FilesScreen(
                         value = newFolderName,
                         onValueChange = { newFolderName = it },
                         label = { Text("Folder Name") },
-                        placeholder = { Text("e.g. loaders, backups, scripts") },
+                        placeholder = { Text("e.g. mdl, loaders, backups") },
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -460,14 +361,10 @@ fun FilesScreen(
 
 @Composable
 fun BreadcrumbsRow(
-    navMode: FilesNavMode,
-    soc: SocType?,
-    brand: DeviceBrand?,
-    internalSubdir: File?,
+    currentDir: File,
     binariesDir: File,
     onResetNav: () -> Unit,
-    onOpenFdls: () -> Unit,
-    onOpenSoc: (SocType) -> Unit
+    onOpenDirectory: (File) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -480,33 +377,20 @@ fun BreadcrumbsRow(
             modifier = Modifier.clickable { onResetNav() }
         )
 
-        when (navMode) {
-            FilesNavMode.FDL_SOC_LIST -> {
+        val relativePath = currentDir.absolutePath.removePrefix(binariesDir.absolutePath).trim('/')
+        if (relativePath.isNotEmpty()) {
+            val segments = relativePath.split('/')
+            var cumulative = binariesDir
+            segments.forEach { segment ->
+                cumulative = File(cumulative, segment)
+                val target = cumulative
                 Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                Text(text = "FDLs", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = segment,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.clickable { onOpenDirectory(target) }
+                )
             }
-            FilesNavMode.FDL_BRAND_LIST -> {
-                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                Text(text = "FDLs", style = MaterialTheme.typography.labelMedium, modifier = Modifier.clickable { onOpenFdls() })
-                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                Text(text = soc?.label ?: "SoC", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            }
-            FilesNavMode.FDL_FILE_LIST -> {
-                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                Text(text = "FDLs", style = MaterialTheme.typography.labelMedium, modifier = Modifier.clickable { onOpenFdls() })
-                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                if (soc != null) {
-                    Text(text = soc.label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.clickable { onOpenSoc(soc) })
-                    Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                }
-                Text(text = brand?.displayName ?: "Brand", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            }
-            FilesNavMode.INTERNAL_TOOLS -> {
-                Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(16.dp))
-                val dirName = internalSubdir?.name ?: binariesDir.name
-                Text(text = dirName, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            }
-            else -> {}
         }
     }
 }
@@ -618,7 +502,7 @@ fun FileItemRow(
     }
 }
 
-private fun shareFile(context: Context, file: File) {
+private fun fileSharing(context: Context, file: File) {
     try {
         val uri: Uri = FileProvider.getUriForFile(
             context,
@@ -632,7 +516,6 @@ private fun shareFile(context: Context, file: File) {
         }
         context.startActivity(Intent.createChooser(shareIntent, "Share ${file.name}"))
     } catch (_: Exception) {
-        // Fallback generic send
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, "File: ${file.name} (${file.length()} bytes)")

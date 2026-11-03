@@ -33,11 +33,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 enum class FilesNavMode {
-    WHICH_DIRECTORY,
-    FDL_SOC_LIST,
-    FDL_BRAND_LIST,
-    FDL_FILE_LIST,
-    INTERNAL_TOOLS
+    BROWSER
 }
 
 data class UniToolsUiState(
@@ -60,10 +56,8 @@ data class UniToolsUiState(
     val pendingActionRunnable: (() -> Unit)? = null,
     val usbStatus: UsbStatus = UsbStatus(),
     // Files Tab state
-    val filesNavMode: FilesNavMode = FilesNavMode.WHICH_DIRECTORY,
-    val fdlSelectedSoc: SocType? = null,
-    val fdlSelectedBrand: DeviceBrand? = null,
-    val internalSubdir: File? = null,
+    val filesNavMode: FilesNavMode = FilesNavMode.BROWSER,
+    val currentFileDir: File? = null,
     val fileRefreshTrigger: Int = 0,
     // Configuration from UniTools Configurations Center
     val config: UniToolsConfig = UniToolsConfig()
@@ -166,10 +160,11 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun selectSoc(soc: SocType) {
-        val newBrand = if (soc.supportedBrands.contains(_uiState.value.selectedBrand)) {
+        val availableBrands = DeviceBrand.getAvailableBrands(binaryManager.binariesDir, soc.id)
+        val newBrand = if (availableBrands.contains(_uiState.value.selectedBrand)) {
             _uiState.value.selectedBrand
         } else {
-            soc.supportedBrands.first()
+            availableBrands.firstOrNull() ?: DeviceBrand.INFINIX
         }
         _uiState.update { it.copy(selectedSoc = soc, selectedBrand = newBrand) }
         repository.prepareTargetFdl(soc, newBrand)
@@ -244,59 +239,22 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
     }
 
     // Files Tab Navigation
-    fun openFdlsDirectory() {
+    fun openDirectory(dir: File) {
         _uiState.update {
             it.copy(
-                filesNavMode = FilesNavMode.FDL_SOC_LIST,
-                fdlSelectedSoc = null,
-                fdlSelectedBrand = null
-            )
-        }
-    }
-
-    fun openFdlSoc(soc: SocType) {
-        _uiState.update {
-            it.copy(
-                filesNavMode = FilesNavMode.FDL_BRAND_LIST,
-                fdlSelectedSoc = soc,
-                fdlSelectedBrand = null
-            )
-        }
-    }
-
-    fun openFdlBrand(brand: DeviceBrand) {
-        _uiState.update {
-            it.copy(
-                filesNavMode = FilesNavMode.FDL_FILE_LIST,
-                fdlSelectedBrand = brand
-            )
-        }
-    }
-
-    fun openInternalToolsDirectory(subdir: File? = null) {
-        _uiState.update {
-            it.copy(
-                filesNavMode = FilesNavMode.INTERNAL_TOOLS,
-                internalSubdir = subdir ?: binaryManager.binariesDir
+                filesNavMode = FilesNavMode.BROWSER,
+                currentFileDir = dir
             )
         }
     }
 
     fun navigateFilesBack() {
         _uiState.update { state ->
-            when (state.filesNavMode) {
-                FilesNavMode.FDL_FILE_LIST -> state.copy(filesNavMode = FilesNavMode.FDL_BRAND_LIST, fdlSelectedBrand = null)
-                FilesNavMode.FDL_BRAND_LIST -> state.copy(filesNavMode = FilesNavMode.FDL_SOC_LIST, fdlSelectedSoc = null)
-                FilesNavMode.FDL_SOC_LIST -> state.copy(filesNavMode = FilesNavMode.WHICH_DIRECTORY)
-                FilesNavMode.INTERNAL_TOOLS -> {
-                    val current = state.internalSubdir
-                    if (current != null && current != binaryManager.binariesDir && current.parentFile != null && current.parentFile!!.startsWith(binaryManager.binariesDir)) {
-                        state.copy(internalSubdir = current.parentFile)
-                    } else {
-                        state.copy(filesNavMode = FilesNavMode.WHICH_DIRECTORY, internalSubdir = null)
-                    }
-                }
-                FilesNavMode.WHICH_DIRECTORY -> state
+            val current = state.currentFileDir
+            if (current != null && current != binaryManager.binariesDir && current.parentFile != null && current.parentFile!!.absolutePath.startsWith(binaryManager.binariesDir.absolutePath)) {
+                state.copy(currentFileDir = current.parentFile)
+            } else {
+                state.copy(currentFileDir = null)
             }
         }
     }
@@ -304,10 +262,8 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
     fun resetFilesNavigation() {
         _uiState.update {
             it.copy(
-                filesNavMode = FilesNavMode.WHICH_DIRECTORY,
-                fdlSelectedSoc = null,
-                fdlSelectedBrand = null,
-                internalSubdir = null
+                filesNavMode = FilesNavMode.BROWSER,
+                currentFileDir = null
             )
         }
     }
