@@ -46,7 +46,9 @@ fun Android15CardGroup(
             colors = CardDefaults.cardColors(containerColor = containerColor)
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 content = content
             )
         }
