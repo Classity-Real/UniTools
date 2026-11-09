@@ -65,6 +65,26 @@ jobs:
           restore-keys: |
             android-build-${{ runner.os }}-
 
+      - name: Install Android SDK 37
+        run: |
+          if [ -z "${ANDROID_HOME:-}" ]; then
+            if [ -d "$HOME/Android/Sdk" ]; then export ANDROID_HOME="$HOME/Android/Sdk"; fi
+            if [ -d /opt/android-sdk ]; then export ANDROID_HOME=/opt/android-sdk; fi
+            if [ -d /usr/local/lib/android/sdk ]; then export ANDROID_HOME=/usr/local/lib/android/sdk; fi
+          fi
+          echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+          SDKM=""
+          for c in "${ANDROID_HOME:-}/cmdline-tools/latest/bin/sdkmanager" "${ANDROID_HOME:-}/cmdline-tools/bin/sdkmanager" "$(command -v sdkmanager || true)"; do
+            if [ -n "$c" ] && [ -x "$c" ]; then SDKM="$c"; break; fi
+          done
+          if [ -n "$SDKM" ]; then
+            yes | "$SDKM" --licenses >/dev/null || true
+            "$SDKM" "platforms;android-37" || true
+          else
+            echo "sdkmanager not found; relying on preinstalled platforms"
+            ls "${ANDROID_HOME:-/nonexistent}/platforms" || true
+          fi
+
       - name: Compute version properties
         id: version
         run: |
