@@ -34,7 +34,7 @@ permissions:
 jobs:
   build:
     name: Build & test
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-pmos-smart
 
     steps:
       - name: Checkout repository
