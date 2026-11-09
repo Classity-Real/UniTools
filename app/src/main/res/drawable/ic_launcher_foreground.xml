@@ -1,12 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- 4-point star, slightly rotated to match brand mark; sized for adaptive safe zone -->
     <path
-        android:strokeColor="#9DF2E8"
-        android:strokeWidth="14"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M26,64 L54,36 L82,64" />
+        android:fillColor="#FFF5F4"
+        android:pathData="M45.35,27.37 L57.40,47.32 L80.63,45.35 L60.68,57.40 L62.65,80.63 L50.60,60.68 L27.37,62.65 L47.32,50.60 Z" />
 </vector>
