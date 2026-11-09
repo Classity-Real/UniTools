@@ -458,7 +458,7 @@ fun FlashTaskRow(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${File(task.filePath).name} · ${task.sizeStr}",
+                    text = "${File(task.filePath).name} · ${task.fileSizeFormatted}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
