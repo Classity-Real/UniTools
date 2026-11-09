@@ -347,7 +347,7 @@ fun FilesScreen(
                     DetailLine("Size", if (file.isDirectory) "${file.listFiles()?.size ?: 0} items" else "${file.length()} bytes (${file.length() / 1024} KB)")
                     DetailLine("Path", file.absolutePath)
                     DetailLine("Executable", if (file.canExecute()) "Yes (chmod 755)" else "No (chmod 644)")
-                    DetailLine("Modified", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(file.lastModified())))
+                    DetailLine("Modified", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(file.lastModified())))
                 }
             },
             confirmButton = {
