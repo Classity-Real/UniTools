@@ -243,7 +243,7 @@ private fun MiuixFlashTaskRow(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "${File(task.filePath).name} · ${task.sizeStr}",
+                text = "${File(task.filePath).name} · ${task.fileSizeFormatted}",
                 fontSize = 11.sp,
                 color = MiuixTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 maxLines = 1,
