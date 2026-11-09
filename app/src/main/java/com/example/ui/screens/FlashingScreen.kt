@@ -4,7 +4,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,6 +61,7 @@ import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
 import com.example.ui.components.Android15GroupDivider
 import com.example.ui.components.CircularActionButton
+import com.example.ui.components.MiuixBootPanel
 import java.io.File
 import java.io.FileOutputStream
 
@@ -80,7 +80,6 @@ fun FlashingScreen(
     var selectedTargetPartition by remember { mutableStateOf("boot") }
     var isPartitionMenuOpen by remember { mutableStateOf(false) }
 
-    // File picker launcher
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -130,10 +129,9 @@ fun FlashingScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 0.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Android 15 Group 1: Flashing Quick Actions
         item {
             Android15CardGroup(title = "Flashing Quick Actions") {
                 Row(
@@ -170,7 +168,6 @@ fun FlashingScreen(
             }
         }
 
-        // Android 15 Group 2: Bootloader Unlock Wizard
         item {
             Android15CardGroup(title = "Bootloader Unlock") {
                 Row(
@@ -235,7 +232,15 @@ fun FlashingScreen(
             }
         }
 
-        // Android 15 Group 3: Flash Partitions & Queue
+        item {
+            MiuixBootPanel(
+                enabled = uiState.config.flashingUnlockBootloader,
+                isExecuting = uiState.isExecuting,
+                onUnlockBootloader = onUnlockBootloader,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
         item {
             Android15CardGroup(title = "Partition Flashing") {
                 Text(
@@ -246,7 +251,6 @@ fun FlashingScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Editable Partition Input and Pick File button
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -305,7 +309,6 @@ fun FlashingScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Quick partition suggestion chips
                 val quickSuggestions = listOf("boot", "init_boot", "recovery", "vbmeta", "super", "misc", "dtbo", "userdata")
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -382,7 +385,7 @@ fun FlashingScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
@@ -421,68 +424,53 @@ fun FlashTaskRow(
                 Button(
                     onClick = {
                         val clean = renameInput.trim()
-                        if (clean.isNotBlank()) {
+                        if (clean.isNotEmpty()) {
                             onRename(clean)
+                            showRenameDialog = false
                         }
-                        showRenameDialog = false
                     }
-                ) {
-                    Text("Save")
-                }
+                ) { Text("Save") }
             },
             dismissButton = {
-                TextButton(onClick = { showRenameDialog = false }) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = { showRenameDialog = false }) { Text("Cancel") }
             }
         )
     }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Partition: ${task.partitionName}",
+                    text = task.partitionName,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${File(task.filePath).name} • ${task.fileSizeFormatted}",
+                    text = "${File(task.filePath).name} · ${task.sizeStr}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = {
-                    renameInput = task.partitionName
-                    showRenameDialog = true
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Partition",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
+            Row {
+                IconButton(onClick = { showRenameDialog = true }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove",
-                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Default.Delete, contentDescription = "Remove", tint = MaterialTheme.colorScheme.error)
                 }
             }
         }
