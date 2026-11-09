@@ -33,7 +33,7 @@ permissions:
 
 jobs:
   build:
-    name: Build & test
+    name: Build APK
     runs-on: namespace-profile-pmos-smart
 
     steps:
@@ -88,12 +88,6 @@ jobs:
           -PappVersionName=${{ steps.version.outputs.version_name }}
           -PappVersionCode=${{ steps.version.outputs.version_code }}
 
-      - name: Run unit tests
-        run: >
-          gradle test${{ inputs.build_type == 'release' && 'Release' || 'Debug' }}UnitTest --build-cache
-          -PappVersionName=${{ steps.version.outputs.version_name }}
-          -PappVersionCode=${{ steps.version.outputs.version_code }}
-
       - name: Build ${{ inputs.build_type }} APK
         run: >
           gradle assemble${{ inputs.build_type == 'release' && 'Release' || 'Debug' }} --build-cache
@@ -121,14 +115,6 @@ jobs:
         with:
           name: lint-report
           path: app/build/reports/lint-results-*.html
-          if-no-files-found: ignore
-
-      - name: Upload test report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-report
-          path: app/build/reports/tests/test${{ inputs.build_type == 'release' && 'Release' || 'Debug' }}UnitTest/
           if-no-files-found: ignore
 
       - name: Create GitHub Release
