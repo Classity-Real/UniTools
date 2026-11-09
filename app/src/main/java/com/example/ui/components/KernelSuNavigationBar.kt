@@ -42,26 +42,25 @@ fun KernelSuNavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Surface(
             modifier = Modifier
                 .widthIn(max = 480.dp)
                 .wrapContentWidth(),
-            shape = RoundedCornerShape(32.dp),
+            shape = RoundedCornerShape(28.dp),
             color = Color.Transparent,
             tonalElevation = 0.dp
         ) {
             Row(
-                modifier = Modifier
-                    .padding(6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 items.forEach { item ->
                     val scale by animateFloatAsState(
-                        targetValue = if (item.selected) 1.06f else 1.0f,
+                        targetValue = if (item.selected) 1.05f else 1.0f,
                         animationSpec = spring(dampingRatio = 0.55f, stiffness = 400f),
                         label = "nav_item_scale"
                     )
@@ -77,17 +76,17 @@ fun KernelSuNavigationBar(
                     )
 
                     Surface(
-                        shape = RoundedCornerShape(22.dp),
+                        shape = RoundedCornerShape(20.dp),
                         color = containerColor,
                         modifier = Modifier
                             .graphicsLayer(scaleX = scale, scaleY = scale)
-                            .clip(RoundedCornerShape(22.dp))
+                            .clip(RoundedCornerShape(20.dp))
                             .clickable { item.onClick() }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Icon(
                                 imageVector = item.icon,

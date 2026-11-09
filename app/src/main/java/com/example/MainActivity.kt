@@ -7,11 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -27,7 +25,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -94,15 +91,16 @@ class MainActivity : ComponentActivity() {
                                 Text(
                                     text = "UniTools",
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(start = 8.dp)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = Color.Transparent
                             ),
                             windowInsets = WindowInsets(0, 0, 0, 0),
-                            modifier = Modifier.statusBarsPadding()
+                            modifier = Modifier
+                                .statusBarsPadding()
+                                .padding(horizontal = 4.dp)
                         )
                     },
                     bottomBar = {
@@ -226,6 +224,7 @@ fun MainContentColumn(
             .fillMaxWidth()
             .widthIn(max = 1200.dp)
             .nestedScroll(nestedScrollConnection)
+            .padding(horizontal = 12.dp)
     ) {
         // USB Auto-Detect status pill
         UsbStatusPill(

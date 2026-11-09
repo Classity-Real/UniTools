@@ -1,7 +1,6 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -27,8 +25,6 @@ import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -48,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,7 +72,7 @@ fun HeaderConfigCard(
 
     Android15CardGroup(
         title = "Target Configuration",
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = modifier.padding(vertical = 4.dp),
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         // Root Status Row with Android 15 Squircle badge
@@ -134,11 +129,11 @@ fun HeaderConfigCard(
 
         Android15GroupDivider()
 
-        // Hex Mode Selection Row (as shown in user screenshot)
+        // Hex Mode Selection Row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -150,7 +145,7 @@ fun HeaderConfigCard(
             )
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
@@ -168,7 +163,7 @@ fun HeaderConfigCard(
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                         )
                     }
                 }
@@ -179,10 +174,9 @@ fun HeaderConfigCard(
 
         // Chips Row: SoC, Brand, Hex Mode, Post Reboot
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // SoC Chip
             AssistChip(
                 onClick = { showConfigSheet = true },
                 label = { Text(uiState.selectedSoc.label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
@@ -200,7 +194,6 @@ fun HeaderConfigCard(
                 )
             )
 
-            // Brand Chip
             AssistChip(
                 onClick = { showConfigSheet = true },
                 label = { Text(uiState.selectedBrand.displayName, fontSize = 12.sp) },
@@ -214,7 +207,6 @@ fun HeaderConfigCard(
                 }
             )
 
-            // Hex Mode Chip
             AssistChip(
                 onClick = onToggleHexMode,
                 label = {
@@ -235,7 +227,6 @@ fun HeaderConfigCard(
                 }
             )
 
-            // Reboot Mode Chip
             AssistChip(
                 onClick = { showConfigSheet = true },
                 label = { Text("Post: ${uiState.rebootMode.label}", fontSize = 11.sp) },
@@ -293,7 +284,7 @@ fun ConfigBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 12.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
             Text(
                 text = "Target Configuration",
@@ -308,7 +299,6 @@ fun ConfigBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // SoC Section
             Text(
                 text = "CHIPSET / SOC PLATFORM",
                 style = MaterialTheme.typography.labelSmall,
@@ -333,7 +323,6 @@ fun ConfigBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Hex Mode Section
             Text(
                 text = "HEX / EXECUTION BYPASS MODE",
                 style = MaterialTheme.typography.labelSmall,
@@ -366,7 +355,6 @@ fun ConfigBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Brand Section
             Text(
                 text = "DEVICE BRAND FDL PROFILE",
                 style = MaterialTheme.typography.labelSmall,
@@ -391,7 +379,6 @@ fun ConfigBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Post Execution Reboot Mode
             Text(
                 text = "REBOOT MODE AFTER EXECUTION",
                 style = MaterialTheme.typography.labelSmall,
