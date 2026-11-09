@@ -51,19 +51,26 @@ android {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      // Prefer release keystore when present; otherwise fall back so CI can still package.
+      // Prefer release keystore when present; otherwise use AGP built-in debug so CI can package.
       val releaseSigning = signingConfigs.getByName("release")
+      val customDebug = signingConfigs.getByName("debugConfig")
       signingConfig =
-        if (releaseSigning.storeFile?.exists() == true) {
-          releaseSigning
-        } else {
-          signingConfigs.getByName("debugConfig")
+        when {
+          releaseSigning.storeFile?.exists() == true -> releaseSigning
+          customDebug.storeFile?.exists() == true -> customDebug
+          else -> signingConfigs.getByName("debug")
         }
     }
     debug {
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
-      signingConfig = signingConfigs.getByName("debugConfig")
+      val customDebug = signingConfigs.getByName("debugConfig")
+      signingConfig =
+        if (customDebug.storeFile?.exists() == true) {
+          customDebug
+        } else {
+          signingConfigs.getByName("debug")
+        }
     }
   }
   compileOptions {
