@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -66,6 +68,7 @@ fun HeaderConfigCard(
     binariesDir: File,
     onSelectSoc: (SocType) -> Unit,
     onSelectBrand: (DeviceBrand) -> Unit,
+    onSelectHexMode: (HexMode) -> Unit,
     onToggleHexMode: () -> Unit,
     onSelectRebootMode: (RebootMode) -> Unit,
     modifier: Modifier = Modifier
@@ -131,6 +134,49 @@ fun HeaderConfigCard(
 
         Android15GroupDivider()
 
+        // Hex Mode Selection Row (as shown in user screenshot)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Hex Mode:",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
+                    val isSelected = uiState.hexMode == mode
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                        border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { onSelectHexMode(mode) }
+                    ) {
+                        Text(
+                            text = mode.label,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Android15GroupDivider()
+
         // Chips Row: SoC, Brand, Hex Mode, Post Reboot
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -172,8 +218,12 @@ fun HeaderConfigCard(
             AssistChip(
                 onClick = onToggleHexMode,
                 label = {
-                    val addr = if (uiState.hexMode == HexMode.STANDARD) uiState.selectedSoc.noverifyAddr else uiState.selectedSoc.altNoverifyAddr
-                    Text("Hex: $addr", fontSize = 11.sp)
+                    val addr = when (uiState.hexMode) {
+                        HexMode.STANDARD -> "Standard"
+                        HexMode.MODE_1 -> uiState.selectedSoc.noverifyAddr
+                        HexMode.MODE_2 -> uiState.selectedSoc.altNoverifyAddr
+                    }
+                    Text("Hex: $addr (${uiState.hexMode.label})", fontSize = 11.sp)
                 },
                 shape = RoundedCornerShape(12.dp),
                 leadingIcon = {
@@ -207,6 +257,7 @@ fun HeaderConfigCard(
             binariesDir = binariesDir,
             onSelectSoc = { onSelectSoc(it) },
             onSelectBrand = { onSelectBrand(it) },
+            onSelectHexMode = onSelectHexMode,
             onSelectRebootMode = onSelectRebootMode,
             onDismiss = { showConfigSheet = false }
         )
@@ -220,6 +271,7 @@ fun ConfigBottomSheet(
     binariesDir: File,
     onSelectSoc: (SocType) -> Unit,
     onSelectBrand: (DeviceBrand) -> Unit,
+    onSelectHexMode: (HexMode) -> Unit,
     onSelectRebootMode: (RebootMode) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -249,7 +301,7 @@ fun ConfigBottomSheet(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Select your Unisoc chipset and target device OEM",
+                text = "Select your Unisoc chipset, bypass mode, and target device OEM",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -274,6 +326,39 @@ fun ConfigBottomSheet(
                         selected = uiState.selectedSoc.id.equals(soc.id, ignoreCase = true),
                         onClick = { onSelectSoc(soc) },
                         label = { Text(soc.label) },
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Hex Mode Section
+            Text(
+                text = "HEX / EXECUTION BYPASS MODE",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
+                    val isSelected = uiState.hexMode == mode
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onSelectHexMode(mode) },
+                        label = {
+                            val detail = when (mode) {
+                                HexMode.STANDARD -> "Standard (Default)"
+                                HexMode.MODE_1 -> "Mode 1 (${uiState.selectedSoc.noverifyAddr})"
+                                HexMode.MODE_2 -> "Mode 2 (${uiState.selectedSoc.altNoverifyAddr})"
+                            }
+                            Text(detail)
+                        },
                         shape = RoundedCornerShape(12.dp)
                     )
                 }

@@ -74,6 +74,11 @@ enum class RebootMode(val flag: String, val label: String) {
 }
 
 enum class HexMode(val index: Int, val label: String) {
-    STANDARD(1, "Standard Hex (0x...)"),
-    ALTERNATIVE(2, "Alternative Hex (Alt 0x...)")
+    STANDARD(0, "Standard"),
+    MODE_1(1, "Mode 1"),
+    MODE_2(2, "Mode 2");
+
+    companion object {
+        val ALTERNATIVE = MODE_2
+    }
 }

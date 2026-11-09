@@ -18,6 +18,7 @@ data class UniToolsConfig(
     val toolsResetFrp: Boolean = true,            // Config: Reset FRP
     val toolsSlotSwitcher: Boolean = true,        // Config: [The Rest] - O
     val toolsHardwareReboots: Boolean = true,     // Config: [The Rest] - O
+    val toolsRepartitionByXml: Boolean = true,    // Config: Repartition by XML
 
     // Section: Files
     val filesEnabled: Boolean = true              // Config: [The Rest] - O

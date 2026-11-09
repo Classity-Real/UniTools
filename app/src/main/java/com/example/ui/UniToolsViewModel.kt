@@ -41,7 +41,7 @@ data class UniToolsUiState(
     val isBinariesReady: Boolean = false,
     val selectedSoc: SocType = SocType.UMS9230,
     val selectedBrand: DeviceBrand = DeviceBrand.INFINIX,
-    val hexMode: HexMode = HexMode.STANDARD,
+    val hexMode: HexMode = HexMode.MODE_1,
     val rebootMode: RebootMode = RebootMode.SYSTEM,
     val isExecuting: Boolean = false,
     val currentTaskDescription: String = "",
@@ -175,9 +175,17 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
         repository.prepareTargetFdl(_uiState.value.selectedSoc, brand)
     }
 
+    fun selectHexMode(mode: HexMode) {
+        _uiState.update { it.copy(hexMode = mode) }
+    }
+
     fun toggleHexMode() {
         _uiState.update {
-            val next = if (it.hexMode == HexMode.STANDARD) HexMode.ALTERNATIVE else HexMode.STANDARD
+            val next = when (it.hexMode) {
+                HexMode.STANDARD -> HexMode.MODE_1
+                HexMode.MODE_1 -> HexMode.MODE_2
+                HexMode.MODE_2 -> HexMode.STANDARD
+            }
             it.copy(hexMode = next)
         }
     }
@@ -210,6 +218,22 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
 
     fun clearFlashTasks() {
         _uiState.update { it.copy(flashTasks = emptyList()) }
+    }
+
+    fun updateFlashTaskPartition(oldPartition: String, newPartition: String) {
+        val clean = newPartition.trim()
+        if (clean.isNotBlank()) {
+            _uiState.update { state ->
+                val updated = state.flashTasks.map { task ->
+                    if (task.partitionName == oldPartition) {
+                        task.copy(partitionName = clean)
+                    } else {
+                        task
+                    }
+                }
+                state.copy(flashTasks = updated)
+            }
+        }
     }
 
     fun selectBackupPreset(preset: BackupPreset) {
@@ -449,6 +473,32 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
         promptHardwareExecution("Reboot Device ($mode)") {
             runOperation("Rebooting device") {
                 repository.directReboot(_uiState.value.selectedSoc, _uiState.value.hexMode, mode)
+            }
+        }
+    }
+
+    fun executeRepartition(xmlFile: File) {
+        promptHardwareExecution("Repartition by XML (${xmlFile.name})") {
+            runOperation("Repartitioning storage via ${xmlFile.name}") {
+                repository.repartitionByXml(
+                    soc = _uiState.value.selectedSoc,
+                    hexMode = _uiState.value.hexMode,
+                    xmlFile = xmlFile,
+                    rebootMode = _uiState.value.rebootMode
+                )
+            }
+        }
+    }
+
+    fun executeDumpPartitionList(outputFile: File) {
+        promptHardwareExecution("Dump Partition Table XML (${outputFile.name})") {
+            runOperation("Reading partition list XML") {
+                repository.readPartitionListXml(
+                    soc = _uiState.value.selectedSoc,
+                    hexMode = _uiState.value.hexMode,
+                    outputXmlFile = outputFile,
+                    rebootMode = _uiState.value.rebootMode
+                )
             }
         }
     }

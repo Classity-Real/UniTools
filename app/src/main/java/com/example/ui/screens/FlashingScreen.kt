@@ -18,26 +18,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +50,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -69,6 +73,7 @@ fun FlashingScreen(
     onRemoveFlashTask: (partition: String) -> Unit,
     onClearFlashTasks: () -> Unit,
     onFlashAll: () -> Unit,
+    onUpdateFlashTaskPartition: (oldPartition: String, newPartition: String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -104,10 +109,12 @@ fun FlashingScreen(
             } catch (ignored: Exception) {}
 
             val baseName = fileName.substringBeforeLast(".").lowercase()
-            val detectedPartition = if (PartitionCatalog.ALL_PARTITION_NAMES.contains(baseName)) {
+            val detectedPartition = if (selectedTargetPartition.isNotBlank()) {
+                selectedTargetPartition.trim()
+            } else if (PartitionCatalog.ALL_PARTITION_NAMES.contains(baseName)) {
                 baseName
             } else {
-                selectedTargetPartition
+                "boot"
             }
 
             val sizeStr = if (fileSize > 1024 * 1024) {
@@ -232,32 +239,44 @@ fun FlashingScreen(
         item {
             Android15CardGroup(title = "Partition Flashing") {
                 Text(
-                    text = "Select partition and pick matching .img / .bin image",
+                    text = "Type target partition name or pick from suggestions, then select image file",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Partition Selector and File Picker in an Android 15 row
+                // Editable Partition Input and Pick File button
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        OutlinedButton(
-                            onClick = { isPartitionMenuOpen = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Text("Target: $selectedTargetPartition")
-                        }
+                        OutlinedTextField(
+                            value = selectedTargetPartition,
+                            onValueChange = { selectedTargetPartition = it },
+                            label = { Text("Target Partition") },
+                            placeholder = { Text("e.g. boot, recovery, vbmeta...") },
+                            singleLine = true,
+                            shape = RoundedCornerShape(14.dp),
+                            trailingIcon = {
+                                IconButton(onClick = { isPartitionMenuOpen = !isPartitionMenuOpen }) {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = "Select from common partitions"
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("input_target_partition")
+                        )
 
                         DropdownMenu(
                             expanded = isPartitionMenuOpen,
                             onDismissRequest = { isPartitionMenuOpen = false }
                         ) {
-                            PartitionCatalog.ALL_PARTITION_NAMES.take(16).forEach { part ->
+                            PartitionCatalog.ALL_PARTITION_NAMES.forEach { part ->
                                 DropdownMenuItem(
                                     text = { Text(part) },
                                     onClick = {
@@ -273,11 +292,40 @@ fun FlashingScreen(
 
                     Button(
                         onClick = { filePickerLauncher.launch("*/*") },
-                        shape = RoundedCornerShape(14.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .height(56.dp)
+                            .testTag("btn_pick_flash_file")
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Pick File")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Quick partition suggestion chips
+                val quickSuggestions = listOf("boot", "init_boot", "recovery", "vbmeta", "super", "misc", "dtbo", "userdata")
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(quickSuggestions) { part ->
+                        val isSelected = selectedTargetPartition.equals(part, ignoreCase = true)
+                        AssistChip(
+                            onClick = { selectedTargetPartition = part },
+                            label = { Text(part) },
+                            colors = if (isSelected) {
+                                AssistChipDefaults.assistChipColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            } else {
+                                AssistChipDefaults.assistChipColors()
+                            },
+                            shape = RoundedCornerShape(10.dp)
+                        )
                     }
                 }
 
@@ -309,7 +357,8 @@ fun FlashingScreen(
                     uiState.flashTasks.forEach { task ->
                         FlashTaskRow(
                             task = task,
-                            onDelete = { onRemoveFlashTask(task.partitionName) }
+                            onDelete = { onRemoveFlashTask(task.partitionName) },
+                            onRename = { newPartition -> onUpdateFlashTaskPartition(task.partitionName, newPartition) }
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                     }
@@ -341,8 +390,54 @@ fun FlashingScreen(
 @Composable
 fun FlashTaskRow(
     task: FlashTaskItem,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onRename: (newName: String) -> Unit = {}
 ) {
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var renameInput by remember(task.partitionName) { mutableStateOf(task.partitionName) }
+
+    if (showRenameDialog) {
+        AlertDialog(
+            onDismissRequest = { showRenameDialog = false },
+            title = { Text("Edit Target Partition") },
+            text = {
+                Column {
+                    Text(
+                        text = "Specify the partition to flash ${File(task.filePath).name} into:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = renameInput,
+                        onValueChange = { renameInput = it },
+                        label = { Text("Partition Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val clean = renameInput.trim()
+                        if (clean.isNotBlank()) {
+                            onRename(clean)
+                        }
+                        showRenameDialog = false
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRenameDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -369,12 +464,26 @@ fun FlashTaskRow(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Remove",
-                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = {
+                    renameInput = task.partitionName
+                    showRenameDialog = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Partition",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Remove",
+                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }

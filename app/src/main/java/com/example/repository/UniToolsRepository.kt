@@ -29,10 +29,13 @@ class UniToolsRepository(
     }
 
     fun buildBaseCommand(soc: SocType, hexMode: HexMode): String {
-        val noverify = if (hexMode == HexMode.STANDARD) soc.noverifyAddr else soc.altNoverifyAddr
         val fdl1 = soc.fdl1Addr
         val fdl2 = soc.fdl2Addr
-        return "./spd_dump exec_addr $noverify fdl fdl1-dl.bin $fdl1 fdl fdl2-dl.bin $fdl2 exec"
+        return when (hexMode) {
+            HexMode.STANDARD -> "./spd_dump fdl fdl1-dl.bin $fdl1 fdl fdl2-dl.bin $fdl2 exec"
+            HexMode.MODE_1 -> "./spd_dump exec_addr ${soc.noverifyAddr} fdl fdl1-dl.bin $fdl1 fdl fdl2-dl.bin $fdl2 exec"
+            HexMode.MODE_2 -> "./spd_dump exec_addr ${soc.altNoverifyAddr} fdl fdl1-dl.bin $fdl1 fdl fdl2-dl.bin $fdl2 exec"
+        }
     }
 
     suspend fun executeRawCommand(cmd: String): ExecutionResult {
@@ -88,7 +91,11 @@ class UniToolsRepository(
     ): ExecutionResult {
         prepareTargetFdl(soc, brand)
         val base = buildBaseCommand(soc, hexMode)
-        val noverify = if (hexMode == HexMode.STANDARD) soc.noverifyAddr else soc.altNoverifyAddr
+        val noverify = when (hexMode) {
+            HexMode.STANDARD -> soc.noverifyAddr
+            HexMode.MODE_1 -> soc.noverifyAddr
+            HexMode.MODE_2 -> soc.altNoverifyAddr
+        }
         val fdl1 = soc.fdl1Addr
 
         // Step 1: Backup & erase splloader
@@ -150,6 +157,28 @@ class UniToolsRepository(
     suspend fun switchActiveSlot(soc: SocType, hexMode: HexMode, slot: String): ExecutionResult {
         val base = buildBaseCommand(soc, hexMode)
         val fullCmd = "$base set_active $slot reset"
+        return rootExecutor.executeCommand(fullCmd, binaryManager.binariesDir)
+    }
+
+    suspend fun repartitionByXml(
+        soc: SocType,
+        hexMode: HexMode,
+        xmlFile: File,
+        rebootMode: RebootMode
+    ): ExecutionResult {
+        val base = buildBaseCommand(soc, hexMode)
+        val fullCmd = "$base repartition \"${xmlFile.absolutePath}\" ${rebootMode.flag}"
+        return rootExecutor.executeCommand(fullCmd, binaryManager.binariesDir)
+    }
+
+    suspend fun readPartitionListXml(
+        soc: SocType,
+        hexMode: HexMode,
+        outputXmlFile: File,
+        rebootMode: RebootMode
+    ): ExecutionResult {
+        val base = buildBaseCommand(soc, hexMode)
+        val fullCmd = "$base partition_list \"${outputXmlFile.absolutePath}\" ${rebootMode.flag}"
         return rootExecutor.executeCommand(fullCmd, binaryManager.binariesDir)
     }
 

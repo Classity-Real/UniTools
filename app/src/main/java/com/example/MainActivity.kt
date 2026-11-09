@@ -244,6 +244,7 @@ fun MainContentColumn(
                 binariesDir = viewModel.binaryManager.binariesDir,
                 onSelectSoc = { viewModel.selectSoc(it) },
                 onSelectBrand = { viewModel.selectBrand(it) },
+                onSelectHexMode = { viewModel.selectHexMode(it) },
                 onToggleHexMode = { viewModel.toggleHexMode() },
                 onSelectRebootMode = { viewModel.selectRebootMode(it) }
             )
@@ -257,7 +258,8 @@ fun MainContentColumn(
                 onAddFlashTask = { part, path, size -> viewModel.addFlashTask(part, path, size) },
                 onRemoveFlashTask = { viewModel.removeFlashTask(it) },
                 onClearFlashTasks = { viewModel.clearFlashTasks() },
-                onFlashAll = { viewModel.executeFlashTasks() }
+                onFlashAll = { viewModel.executeFlashTasks() },
+                onUpdateFlashTaskPartition = { oldPart, newPart -> viewModel.updateFlashTaskPartition(oldPart, newPart) }
             )
             1 -> BackupRestoreScreen(
                 uiState = uiState,
@@ -272,7 +274,9 @@ fun MainContentColumn(
                 onDisableVerity = { viewModel.executeDisableVerity() },
                 onResetFrp = { viewModel.executeResetFrp() },
                 onSwitchSlot = { viewModel.executeSwitchSlot(it) },
-                onReboot = { viewModel.executeReboot(it) }
+                onReboot = { viewModel.executeReboot(it) },
+                onRepartitionByXml = { viewModel.executeRepartition(it) },
+                onDumpPartitionList = { viewModel.executeDumpPartitionList(it) }
             )
             3 -> FilesScreen(
                 uiState = uiState,
