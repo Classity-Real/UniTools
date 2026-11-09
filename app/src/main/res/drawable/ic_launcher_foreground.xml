@@ -4,8 +4,12 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- 4-point star, slightly rotated to match brand mark; sized for adaptive safe zone -->
+    <!--
+      4-point star (brand mark).
+      Rotated ~18deg, long points, tight core — matches the cream star on dark bg.
+      Sized to stay inside adaptive-icon safe zone (~66dp center).
+    -->
     <path
         android:fillColor="#FFF5F4"
-        android:pathData="M45.35,27.37 L57.40,47.32 L80.63,45.35 L60.68,57.40 L62.65,80.63 L50.60,60.68 L27.37,62.65 L47.32,50.60 Z" />
+        android:pathData="M44.12,24.85 L57.85,46.55 L83.15,42.90 L61.45,56.63 L65.10,81.93 L51.37,60.23 L26.07,63.88 L47.77,50.15 Z" />
 </vector>
