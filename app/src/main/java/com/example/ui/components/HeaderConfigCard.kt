@@ -142,8 +142,7 @@ fun HeaderConfigCard(
                 .fillMaxWidth()
                 .padding(vertical = 2.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            itemVerticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
                 text = "Hex Mode",
