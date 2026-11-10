@@ -60,7 +60,7 @@ import com.example.model.RebootMode
 import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
 import com.example.ui.components.Android15GroupDivider
-import com.example.ui.components.CircularActionButton
+import com.example.ui.components.ActionTile
 import java.io.File
 import java.io.FileOutputStream
 
@@ -156,45 +156,42 @@ fun ToolsScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
+        contentPadding = PaddingValues(top = 0.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Android 15 Group 1: Device Maintenance Actions
         item {
             Android15CardGroup(title = "Device Maintenance") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ActionTile(
+                        modifier = Modifier.fillMaxWidth(),
                         icon = Icons.Default.DeleteForever,
-                        label = "Wipe Userdata",
+                        label = "Wipe userdata",
                         onClick = onWipeUserdata,
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         iconTint = MaterialTheme.colorScheme.onErrorContainer,
                         enabled = !uiState.isExecuting && uiState.config.toolsWipeUserdata
                     )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.Security,
-                        label = "Disable Verity",
-                        onClick = onDisableVerity,
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        enabled = !uiState.isExecuting && uiState.config.toolsDisableVerity
-                    )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.LockReset,
-                        label = "Reset FRP",
-                        onClick = onResetFrp,
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        enabled = !uiState.isExecuting && uiState.config.toolsResetFrp
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.Security,
+                            label = "Disable verity",
+                            onClick = onDisableVerity,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            enabled = !uiState.isExecuting && uiState.config.toolsDisableVerity
+                        )
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.LockReset,
+                            label = "Reset FRP",
+                            onClick = onResetFrp,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            enabled = !uiState.isExecuting && uiState.config.toolsResetFrp
+                        )
+                    }
                 }
             }
         }
