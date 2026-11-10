@@ -71,3 +71,44 @@ fun CircularActionButton(
         )
     }
 }
+
+
+@Composable
+fun ActionTile(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    iconTint: Color = MaterialTheme.colorScheme.primary,
+    enabled: Boolean = true,
+    testTag: String = "action_tile_$label"
+) {
+    Column(
+        modifier = modifier
+            .testTag(testTag)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+            .background(if (enabled) containerColor else containerColor.copy(alpha = 0.45f))
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (enabled) iconTint else iconTint.copy(alpha = 0.38f),
+            modifier = Modifier.size(22.dp)
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = label,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
