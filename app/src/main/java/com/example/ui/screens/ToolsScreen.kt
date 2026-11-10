@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -154,19 +155,19 @@ fun ToolsScreen(
     }
 
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Android 15 Group 1: Device Maintenance Actions
         item {
             Android15CardGroup(title = "Device Maintenance") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.DeleteForever,
                         label = "Wipe Userdata",
                         onClick = onWipeUserdata,
@@ -176,6 +177,7 @@ fun ToolsScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.Security,
                         label = "Disable Verity",
                         onClick = onDisableVerity,
@@ -185,6 +187,7 @@ fun ToolsScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.LockReset,
                         label = "Reset FRP",
                         onClick = onResetFrp,
@@ -553,7 +556,7 @@ fun ToolsScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

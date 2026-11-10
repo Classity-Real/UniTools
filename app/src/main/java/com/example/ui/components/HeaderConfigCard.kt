@@ -81,7 +81,10 @@ fun HeaderConfigCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 val rootGranted = uiState.isRootGranted == true
                 Surface(
                     modifier = Modifier.size(28.dp),
@@ -98,18 +101,22 @@ fun HeaderConfigCard(
                     }
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (rootGranted) "Root Access Granted" else "Root Privileges Required (su)",
+                        text = if (rootGranted) "Root Access Granted" else "Root required",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (rootGranted) StatusGreen else StatusAmber
+                        color = if (rootGranted) StatusGreen else StatusAmber,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                     Text(
                         text = "Native spd_dump engine loaded",
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                 }
             }
@@ -130,25 +137,22 @@ fun HeaderConfigCard(
         Android15GroupDivider()
 
         // Hex Mode Selection Row
-        Row(
+        FlowRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            itemVerticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Hex Mode:",
+                text = "Hex Mode",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(end = 2.dp)
             )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
+            listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
                     val isSelected = uiState.hexMode == mode
                     Surface(
                         shape = RoundedCornerShape(10.dp),
@@ -167,7 +171,6 @@ fun HeaderConfigCard(
                         )
                     }
                 }
-            }
         }
 
         Android15GroupDivider()

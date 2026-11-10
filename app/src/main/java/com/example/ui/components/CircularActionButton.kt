@@ -5,9 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,14 +34,12 @@ fun CircularActionButton(
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     iconTint: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    size: Dp = 64.dp,
+    size: Dp = 48.dp,
     enabled: Boolean = true,
     testTag: String = "circle_action_$label"
 ) {
     Column(
-        modifier = modifier
-            .width(84.dp)
-            .testTag(testTag),
+        modifier = modifier.testTag(testTag),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -56,19 +54,20 @@ fun CircularActionButton(
                 imageVector = icon,
                 contentDescription = label,
                 tint = if (enabled) iconTint else iconTint.copy(alpha = 0.38f),
-                modifier = Modifier.size(size * 0.45f)
+                modifier = Modifier.size(size * 0.46f)
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = label,
+            modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            lineHeight = 14.sp
+            lineHeight = 13.sp
         )
     }
 }

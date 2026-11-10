@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -76,18 +77,18 @@ fun BackupRestoreScreen(
     }
 
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 0.dp),
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
             Android15CardGroup(title = "Backup Presets") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.SimCard,
                         label = "IMEI & NVRAM",
                         onClick = { onSelectPreset(BackupPreset.IMEI_NVRAM) },
@@ -98,6 +99,7 @@ fun BackupRestoreScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.FilterList,
                         label = "All Lite Backup",
                         onClick = { onSelectPreset(BackupPreset.ALL_LITE) },
@@ -108,6 +110,7 @@ fun BackupRestoreScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.Backup,
                         label = "Full Partitions",
                         onClick = { onSelectPreset(BackupPreset.ALL_FULL) },
@@ -285,7 +288,7 @@ fun BackupRestoreScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

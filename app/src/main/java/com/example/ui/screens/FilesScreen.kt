@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Terminal
@@ -112,19 +114,19 @@ fun FilesScreen(
     var fileDetails by remember { mutableStateOf<File?>(null) }
 
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Group 1: File Actions (Import, Add Files, New Folder, Reset)
         item {
             Android15CardGroup {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.FileDownload,
                         label = "Import",
                         onClick = { importFilesLauncher.launch("*/*") },
@@ -133,6 +135,7 @@ fun FilesScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.Add,
                         label = "Add Files",
                         onClick = { importFilesLauncher.launch("*/*") },
@@ -141,6 +144,7 @@ fun FilesScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.CreateNewFolder,
                         label = "New Folder",
                         onClick = {
@@ -152,7 +156,8 @@ fun FilesScreen(
                     )
 
                     CircularActionButton(
-                        icon = Icons.Default.FolderOpen,
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Default.RestartAlt,
                         label = "Reset",
                         onClick = onResetNav,
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,

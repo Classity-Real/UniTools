@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,7 +62,6 @@ import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
 import com.example.ui.components.Android15GroupDivider
 import com.example.ui.components.CircularActionButton
-import com.example.ui.components.MiuixBootPanel
 import java.io.File
 import java.io.FileOutputStream
 
@@ -127,18 +127,18 @@ fun FlashingScreen(
     }
 
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 0.dp),
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
             Android15CardGroup(title = "Flashing Quick Actions") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.LockOpen,
                         label = "Unlock Bootloader",
                         onClick = onUnlockBootloader,
@@ -148,6 +148,7 @@ fun FlashingScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.FolderOpen,
                         label = "Add Partition",
                         onClick = { filePickerLauncher.launch("*/*") },
@@ -157,6 +158,7 @@ fun FlashingScreen(
                     )
 
                     CircularActionButton(
+                        modifier = Modifier.weight(1f),
                         icon = Icons.Default.FlashOn,
                         label = "Flash Queue",
                         onClick = onFlashAll,
@@ -230,15 +232,6 @@ fun FlashingScreen(
                     Text(if (uiState.config.flashingUnlockBootloader) "Start Bootloader Unlock" else "Bootloader Unlock (Disabled in Config)")
                 }
             }
-        }
-
-        item {
-            MiuixBootPanel(
-                enabled = uiState.config.flashingUnlockBootloader,
-                isExecuting = uiState.isExecuting,
-                onUnlockBootloader = onUnlockBootloader,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
         item {
@@ -385,7 +378,7 @@ fun FlashingScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

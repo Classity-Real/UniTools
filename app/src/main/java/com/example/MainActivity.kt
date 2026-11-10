@@ -224,7 +224,7 @@ fun MainContentColumn(
             .fillMaxWidth()
             .widthIn(max = 1200.dp)
             .nestedScroll(nestedScrollConnection)
-            .padding(horizontal = 12.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 6.dp)
     ) {
         // USB Auto-Detect status pill
         UsbStatusPill(
