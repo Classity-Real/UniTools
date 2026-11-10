@@ -61,7 +61,7 @@ import com.example.model.PartitionCatalog
 import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
 import com.example.ui.components.Android15GroupDivider
-import com.example.ui.components.CircularActionButton
+import com.example.ui.components.ActionTile
 import java.io.File
 import java.io.FileOutputStream
 
@@ -128,44 +128,44 @@ fun FlashingScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
+        contentPadding = PaddingValues(top = 0.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Android15CardGroup(title = "Flashing Quick Actions") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
+            Android15CardGroup(title = "Flashing") {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ActionTile(
+                        modifier = Modifier.fillMaxWidth(),
                         icon = Icons.Default.LockOpen,
-                        label = "Unlock Bootloader",
+                        label = "Unlock bootloader",
                         onClick = onUnlockBootloader,
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
                         enabled = !uiState.isExecuting && uiState.config.flashingUnlockBootloader
                     )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.FolderOpen,
-                        label = "Add Partition",
-                        onClick = { filePickerLauncher.launch("*/*") },
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        enabled = !uiState.isExecuting && uiState.config.flashingAddPartition
-                    )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.FlashOn,
-                        label = "Flash Queue",
-                        onClick = onFlashAll,
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onTertiaryContainer,
-                        enabled = !uiState.isExecuting && uiState.config.flashingFlashQueue && uiState.flashTasks.isNotEmpty()
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.FolderOpen,
+                            label = "Add image",
+                            onClick = { filePickerLauncher.launch("*/*") },
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            enabled = !uiState.isExecuting && uiState.config.flashingAddPartition
+                        )
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.FlashOn,
+                            label = "Flash queue",
+                            onClick = onFlashAll,
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            iconTint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            enabled = !uiState.isExecuting && uiState.config.flashingFlashQueue && uiState.flashTasks.isNotEmpty()
+                        )
+                    }
                 }
             }
         }
@@ -177,7 +177,10 @@ fun FlashingScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Surface(
                             modifier = Modifier.size(42.dp),
                             shape = RoundedCornerShape(14.dp),
@@ -193,16 +196,20 @@ fun FlashingScreen(
                             }
                         }
                         Spacer(modifier = Modifier.width(14.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = "Automated SPL Unlock",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Backs up loader, writes token & verifies miscdata",
+                                text = "Backs up loader, writes token and verifies miscdata",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -244,11 +251,7 @@ fun FlashingScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
                             value = selectedTargetPartition,
                             onValueChange = { selectedTargetPartition = it },
@@ -283,21 +286,21 @@ fun FlashingScreen(
                                 )
                             }
                         }
-                    }
+                }
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    Button(
-                        onClick = { filePickerLauncher.launch("*/*") },
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .height(56.dp)
-                            .testTag("btn_pick_flash_file")
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Pick File")
-                    }
+                Button(
+                    onClick = { filePickerLauncher.launch("*/*") },
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("btn_pick_flash_file")
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Pick file")
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
