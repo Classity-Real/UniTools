@@ -68,7 +68,7 @@ import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
 import com.example.ui.components.Android15GroupDivider
 import com.example.ui.components.Android15GroupRow
-import com.example.ui.components.CircularActionButton
+import com.example.ui.components.ActionTile
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -115,54 +115,37 @@ fun FilesScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
+        contentPadding = PaddingValues(top = 0.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Group 1: File Actions (Import, Add Files, New Folder, Reset)
         item {
-            Android15CardGroup {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.FileDownload,
-                        label = "Import",
-                        onClick = { importFilesLauncher.launch("*/*") },
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.Add,
-                        label = "Add Files",
-                        onClick = { importFilesLauncher.launch("*/*") },
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.CreateNewFolder,
-                        label = "New Folder",
-                        onClick = {
-                            newFolderName = ""
-                            showCreateFolderDialog = true
-                        },
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        iconTint = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.RestartAlt,
-                        label = "Reset",
-                        onClick = onResetNav,
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        iconTint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            Android15CardGroup(title = "Files") {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.FileDownload,
+                            label = "Import",
+                            onClick = { importFilesLauncher.launch("*/*") },
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            iconTint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.CreateNewFolder,
+                            label = "New folder",
+                            onClick = {
+                                newFolderName = ""
+                                showCreateFolderDialog = true
+                            },
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            iconTint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
                 }
             }
         }
@@ -173,19 +156,24 @@ fun FilesScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onNavigateBack, modifier = Modifier.size(36.dp)) {
+                    IconButton(onClick = onNavigateBack, modifier = Modifier.size(40.dp)) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.primary)
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
                     BreadcrumbsRow(
+                        modifier = Modifier.weight(1f),
                         currentDir = currentTargetDir,
                         binariesDir = binariesDir,
                         onResetNav = onResetNav,
                         onOpenDirectory = onOpenDirectory
                     )
+                    TextButton(onClick = onResetNav) {
+                        Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Reset")
+                    }
                 }
             }
         }
@@ -369,11 +357,12 @@ fun BreadcrumbsRow(
     currentDir: File,
     binariesDir: File,
     onResetNav: () -> Unit,
-    onOpenDirectory: (File) -> Unit
+    onOpenDirectory: (File) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 4.dp)
+        modifier = modifier.padding(vertical = 4.dp)
     ) {
         Text(
             text = "Files",
