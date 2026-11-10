@@ -48,7 +48,7 @@ import com.example.model.PartitionCatalog
 import com.example.ui.UniToolsUiState
 import com.example.ui.components.Android15CardGroup
 import com.example.ui.components.Android15GroupDivider
-import com.example.ui.components.CircularActionButton
+import com.example.ui.components.ActionTile
 import java.io.File
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -78,47 +78,44 @@ fun BackupRestoreScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 128.dp),
+        contentPadding = PaddingValues(top = 0.dp, bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
             Android15CardGroup(title = "Backup Presets") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ActionTile(
+                        modifier = Modifier.fillMaxWidth(),
                         icon = Icons.Default.SimCard,
-                        label = "IMEI & NVRAM",
+                        label = "IMEI and NVRAM",
                         onClick = { onSelectPreset(BackupPreset.IMEI_NVRAM) },
                         containerColor = if (uiState.activeBackupPreset == BackupPreset.IMEI_NVRAM)
                             MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
                         iconTint = if (uiState.activeBackupPreset == BackupPreset.IMEI_NVRAM)
                             MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                     )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.FilterList,
-                        label = "All Lite Backup",
-                        onClick = { onSelectPreset(BackupPreset.ALL_LITE) },
-                        containerColor = if (uiState.activeBackupPreset == BackupPreset.ALL_LITE)
-                            MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        iconTint = if (uiState.activeBackupPreset == BackupPreset.ALL_LITE)
-                            MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    CircularActionButton(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.Backup,
-                        label = "Full Partitions",
-                        onClick = { onSelectPreset(BackupPreset.ALL_FULL) },
-                        containerColor = if (uiState.activeBackupPreset == BackupPreset.ALL_FULL)
-                            MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        iconTint = if (uiState.activeBackupPreset == BackupPreset.ALL_FULL)
-                            MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.FilterList,
+                            label = "All lite",
+                            onClick = { onSelectPreset(BackupPreset.ALL_LITE) },
+                            containerColor = if (uiState.activeBackupPreset == BackupPreset.ALL_LITE)
+                                MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                            iconTint = if (uiState.activeBackupPreset == BackupPreset.ALL_LITE)
+                                MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.Backup,
+                            label = "Full",
+                            onClick = { onSelectPreset(BackupPreset.ALL_FULL) },
+                            containerColor = if (uiState.activeBackupPreset == BackupPreset.ALL_FULL)
+                                MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                            iconTint = if (uiState.activeBackupPreset == BackupPreset.ALL_FULL)
+                                MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
