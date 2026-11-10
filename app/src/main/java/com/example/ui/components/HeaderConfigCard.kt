@@ -72,7 +72,7 @@ fun HeaderConfigCard(
 
     Android15CardGroup(
         title = "Target Configuration",
-        modifier = modifier.padding(vertical = 4.dp),
+        modifier = modifier.padding(top = 8.dp, bottom = 4.dp),
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         // Root Status Row with Android 15 Squircle badge
@@ -149,7 +149,9 @@ fun HeaderConfigCard(
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(end = 2.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 2.dp)
             )
             listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
                     val isSelected = uiState.hexMode == mode
