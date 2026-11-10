@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
@@ -96,11 +95,7 @@ class MainActivity : ComponentActivity() {
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = Color.Transparent
-                            ),
-                            windowInsets = WindowInsets(0, 0, 0, 0),
-                            modifier = Modifier
-                                .statusBarsPadding()
-                                .padding(horizontal = 4.dp)
+                            )
                         )
                     },
                     bottomBar = {
@@ -224,7 +219,7 @@ fun MainContentColumn(
             .fillMaxWidth()
             .widthIn(max = 1200.dp)
             .nestedScroll(nestedScrollConnection)
-            .padding(start = 16.dp, end = 16.dp, top = 6.dp)
+            .padding(horizontal = 16.dp)
     ) {
         // USB Auto-Detect status pill
         UsbStatusPill(
@@ -258,14 +253,16 @@ fun MainContentColumn(
                 onRemoveFlashTask = { viewModel.removeFlashTask(it) },
                 onClearFlashTasks = { viewModel.clearFlashTasks() },
                 onFlashAll = { viewModel.executeFlashTasks() },
-                onUpdateFlashTaskPartition = { oldPart, newPart -> viewModel.updateFlashTaskPartition(oldPart, newPart) }
+                onUpdateFlashTaskPartition = { oldPart, newPart -> viewModel.updateFlashTaskPartition(oldPart, newPart) },
+                modifier = Modifier.weight(1f).fillMaxWidth()
             )
             1 -> BackupRestoreScreen(
                 uiState = uiState,
                 onSelectPreset = { viewModel.selectBackupPreset(it) },
                 onTogglePartition = { viewModel.togglePartitionSelection(it) },
                 onStartBackup = { viewModel.executeBackup() },
-                onStartRestore = { viewModel.executeRestore(it) }
+                onStartRestore = { viewModel.executeRestore(it) },
+                modifier = Modifier.weight(1f).fillMaxWidth()
             )
             2 -> ToolsScreen(
                 uiState = uiState,
@@ -275,7 +272,8 @@ fun MainContentColumn(
                 onSwitchSlot = { viewModel.executeSwitchSlot(it) },
                 onReboot = { viewModel.executeReboot(it) },
                 onRepartitionByXml = { viewModel.executeRepartition(it) },
-                onDumpPartitionList = { viewModel.executeDumpPartitionList(it) }
+                onDumpPartitionList = { viewModel.executeDumpPartitionList(it) },
+                modifier = Modifier.weight(1f).fillMaxWidth()
             )
             3 -> FilesScreen(
                 uiState = uiState,
@@ -287,7 +285,8 @@ fun MainContentColumn(
                 onCreateFolder = { dir, name -> viewModel.createFolder(dir, name) },
                 onRenameFile = { file, name -> viewModel.renameFile(file, name) },
                 onDeleteFile = { file -> viewModel.deleteFile(file) },
-                onToggleExecutable = { file -> viewModel.toggleFileExecutable(file) }
+                onToggleExecutable = { file -> viewModel.toggleFileExecutable(file) },
+                modifier = Modifier.weight(1f).fillMaxWidth()
             )
         }
     }
