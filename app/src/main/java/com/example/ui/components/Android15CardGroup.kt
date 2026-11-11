@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,6 +35,7 @@ fun Android15CardGroup(
     title: String? = null,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
@@ -57,7 +59,7 @@ fun Android15CardGroup(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(contentPadding),
                 content = content
             )
         }
