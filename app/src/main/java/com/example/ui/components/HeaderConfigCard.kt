@@ -1,9 +1,6 @@
 package com.example.ui.components
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -11,20 +8,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -42,8 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,178 +61,42 @@ fun HeaderConfigCard(
     var showConfigSheet by remember { mutableStateOf(false) }
 
     Android15CardGroup(
-        title = "Target Configuration",
-        modifier = modifier.padding(top = 8.dp, bottom = 4.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        modifier = modifier.padding(top = 4.dp, bottom = 2.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
     ) {
-        // Root Status Row with Android 15 Squircle badge
+        val rootGranted = uiState.isRootGranted == true
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                val rootGranted = uiState.isRootGranted == true
-                Surface(
-                    modifier = Modifier.size(28.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    color = if (rootGranted) StatusGreen.copy(alpha = 0.2f) else StatusAmber.copy(alpha = 0.2f)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = if (rootGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
-                            contentDescription = "Root status",
-                            tint = if (rootGranted) StatusGreen else StatusAmber,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = if (rootGranted) "Root Access Granted" else "Root required",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (rootGranted) StatusGreen else StatusAmber,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = "Native spd_dump engine loaded",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
-                }
-            }
-
+            Icon(
+                imageVector = if (rootGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
+                contentDescription = if (rootGranted) "Root granted" else "Root required",
+                tint = if (rootGranted) StatusGreen else StatusAmber,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${uiState.selectedSoc.label}  ·  ${uiState.selectedBrand.displayName}  ·  ${uiState.hexMode.label}  ·  ${uiState.rebootMode.label}",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
             IconButton(
                 onClick = { showConfigSheet = true },
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(32.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Configure Chipset & Options",
+                    contentDescription = "Target configuration",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
-        }
-
-        Android15GroupDivider()
-
-        // Hex Mode Selection Row
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Text(
-                text = "Hex Mode",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 2.dp)
-            )
-            listOf(HexMode.STANDARD, HexMode.MODE_1, HexMode.MODE_2).forEach { mode ->
-                    val isSelected = uiState.hexMode == mode
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                        border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .clickable { onSelectHexMode(mode) }
-                    ) {
-                        Text(
-                            text = mode.label,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-        }
-
-        Android15GroupDivider()
-
-        // Chips Row: SoC, Brand, Hex Mode, Post Reboot
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            AssistChip(
-                onClick = { showConfigSheet = true },
-                label = { Text(uiState.selectedSoc.label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Memory,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = AssistChipDefaults.assistChipColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    labelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-
-            AssistChip(
-                onClick = { showConfigSheet = true },
-                label = { Text(uiState.selectedBrand.displayName, fontSize = 12.sp) },
-                shape = RoundedCornerShape(12.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.PhoneAndroid,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            )
-
-            AssistChip(
-                onClick = onToggleHexMode,
-                label = {
-                    val addr = when (uiState.hexMode) {
-                        HexMode.STANDARD -> "Standard"
-                        HexMode.MODE_1 -> uiState.selectedSoc.noverifyAddr
-                        HexMode.MODE_2 -> uiState.selectedSoc.altNoverifyAddr
-                    }
-                    Text("Hex: $addr (${uiState.hexMode.label})", fontSize = 11.sp)
-                },
-                shape = RoundedCornerShape(12.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Tag,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp)
-                    )
-                }
-            )
-
-            AssistChip(
-                onClick = { showConfigSheet = true },
-                label = { Text("Post: ${uiState.rebootMode.label}", fontSize = 11.sp) },
-                shape = RoundedCornerShape(12.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.RestartAlt,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp)
-                    )
-                }
-            )
         }
     }
 
