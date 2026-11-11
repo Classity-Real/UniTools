@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
@@ -51,13 +54,18 @@ import com.example.ui.UniToolsViewModel
 import com.example.ui.components.ConsoleBottomSheet
 import com.example.ui.components.HardwareGuidanceDialog
 import com.example.ui.components.HeaderConfigCard
-import com.example.ui.components.UsbStatusPill
 import com.example.ui.screens.BackupRestoreScreen
 import com.example.ui.screens.FilesScreen
 import com.example.ui.screens.FlashingScreen
 import com.example.ui.screens.ToolsScreen
 import com.example.ui.components.KernelSuNavigationBar
 import com.example.ui.components.NavigationItem
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import com.example.ui.theme.StatusGreen
 import com.example.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -87,11 +95,27 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = {
-                                Text(
-                                    text = "UniTools",
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                val usb = uiState.usbStatus
+                                val dot = when {
+                                    usb.isUnisocBrom -> StatusGreen
+                                    usb.isConnected -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.28f)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "UniTools",
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(dot)
+                                            .clickable { viewModel.refreshUsb() }
+                                    )
+                                }
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = Color.Transparent
@@ -221,12 +245,6 @@ fun MainContentColumn(
             .nestedScroll(nestedScrollConnection)
             .padding(horizontal = 16.dp)
     ) {
-        // USB Auto-Detect status pill
-        UsbStatusPill(
-            usbStatus = uiState.usbStatus,
-            onRefresh = { viewModel.refreshUsb() }
-        )
-
         // Target SoC and Device configuration header card (collapses when scrolling down)
         AnimatedVisibility(
             visible = isHeaderVisible,
