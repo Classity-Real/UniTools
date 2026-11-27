@@ -2,6 +2,16 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+// System Instrument palette for the Liquid Glass theme (dark only)
+val InstrumentBackground = Color(0xFF0E1113)
+val InstrumentForeground = Color(0xFFD7DEE2)
+val InstrumentHeading = Color(0xFFF2F6F8)
+val InstrumentAccent = Color(0xFF39D98A)
+val InstrumentSurface = Color(0xFF171C1F)
+val InstrumentSurfaceHigh = Color(0xFF1F262A)
+val InstrumentBorder = Color(0xFF2A3338)
+val InstrumentMuted = Color(0xFF8FA0A8)
+
 // Material You Teal/Slate Solid Palette (Zero Gradients)
 val TealPrimaryLight = Color(0xFF00695C)
 val TealOnPrimaryLight = Color(0xFFFFFFFF)

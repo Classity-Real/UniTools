@@ -20,6 +20,7 @@ import com.example.model.RebootMode
 import com.example.model.SocType
 import com.example.model.UniToolsConfig
 import com.example.repository.UniToolsRepository
+import com.example.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,7 +61,8 @@ data class UniToolsUiState(
     val currentFileDir: File? = null,
     val fileRefreshTrigger: Int = 0,
     // Configuration from UniTools Configurations Center
-    val config: UniToolsConfig = UniToolsConfig()
+    val config: UniToolsConfig = UniToolsConfig(),
+    val theme: AppTheme = AppTheme.MATERIAL
 )
 
 class UniToolsViewModel(application: Application) : AndroidViewModel(application) {
@@ -73,6 +75,7 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
     val uiState: StateFlow<UniToolsUiState> = _uiState.asStateFlow()
 
     init {
+        _uiState.update { it.copy(theme = initialTheme) }
         loadConfiguration()
         checkSystem()
         observeLogs()
@@ -158,6 +161,20 @@ class UniToolsViewModel(application: Application) : AndroidViewModel(application
     fun setTab(index: Int) {
         _uiState.update { it.copy(activeTab = index) }
     }
+
+    fun setTheme(theme: AppTheme) {
+        _uiState.update { it.copy(theme = theme) }
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("unitools_settings", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putString("app_theme", theme.name).apply()
+    }
+
+    val initialTheme: AppTheme
+        get() {
+            val prefs = getApplication<Application>()
+                .getSharedPreferences("unitools_settings", android.content.Context.MODE_PRIVATE)
+            return AppTheme.fromName(prefs.getString("app_theme", null))
+        }
 
     fun selectSoc(soc: SocType) {
         val availableBrands = DeviceBrand.getAvailableBrands(binaryManager.binariesDir, soc.id)

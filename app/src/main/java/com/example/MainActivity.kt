@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -58,7 +59,10 @@ import com.example.ui.screens.BackupRestoreScreen
 import com.example.ui.screens.FilesScreen
 import com.example.ui.screens.FlashingScreen
 import com.example.ui.screens.ToolsScreen
+import com.example.ui.screens.ThemeSettingsScreen
 import com.example.ui.components.KernelSuNavigationBar
+import com.example.ui.components.LiquidGlassNavigationBar
+import com.example.ui.theme.AppTheme
 import com.example.ui.components.NavigationItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -86,7 +90,7 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            MyApplicationTheme {
+            MyApplicationTheme(appTheme = uiState.theme) {
                 val uiState by viewModel.uiState.collectAsState()
 
                 Scaffold(
@@ -129,34 +133,77 @@ class MainActivity : ComponentActivity() {
                                 .navigationBarsPadding(),
                             contentAlignment = Alignment.Center
                         ) {
-                            KernelSuNavigationBar(
-                                items = listOf(
-                                    NavigationItem(
-                                        title = "Flashing",
-                                        icon = Icons.Default.FlashOn,
-                                        selected = uiState.activeTab == 0,
-                                        onClick = { viewModel.setTab(0) }
-                                    ),
-                                    NavigationItem(
-                                        title = "Backup",
-                                        icon = Icons.Default.Backup,
-                                        selected = uiState.activeTab == 1,
-                                        onClick = { viewModel.setTab(1) }
-                                    ),
-                                    NavigationItem(
-                                        title = "Tools",
-                                        icon = Icons.Default.Build,
-                                        selected = uiState.activeTab == 2,
-                                        onClick = { viewModel.setTab(2) }
-                                    ),
-                                    NavigationItem(
-                                        title = "Files",
-                                        icon = Icons.Default.Folder,
-                                        selected = uiState.activeTab == 3,
-                                        onClick = { viewModel.setTab(3) }
+                            if (uiState.theme == AppTheme.LIQUID_GLASS) {
+                                LiquidGlassNavigationBar(
+                                    items = listOf(
+                                        NavigationItem(
+                                            title = "Flashing",
+                                            icon = Icons.Default.FlashOn,
+                                            selected = uiState.activeTab == 0,
+                                            onClick = { viewModel.setTab(0) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Backup",
+                                            icon = Icons.Default.Backup,
+                                            selected = uiState.activeTab == 1,
+                                            onClick = { viewModel.setTab(1) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Tools",
+                                            icon = Icons.Default.Build,
+                                            selected = uiState.activeTab == 2,
+                                            onClick = { viewModel.setTab(2) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Files",
+                                            icon = Icons.Default.Folder,
+                                            selected = uiState.activeTab == 3,
+                                            onClick = { viewModel.setTab(3) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Settings",
+                                            icon = Icons.Default.Settings,
+                                            selected = uiState.activeTab == 4,
+                                            onClick = { viewModel.setTab(4) }
+                                        )
                                     )
                                 )
-                            )
+                            } else {
+                                KernelSuNavigationBar(
+                                    items = listOf(
+                                        NavigationItem(
+                                            title = "Flashing",
+                                            icon = Icons.Default.FlashOn,
+                                            selected = uiState.activeTab == 0,
+                                            onClick = { viewModel.setTab(0) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Backup",
+                                            icon = Icons.Default.Backup,
+                                            selected = uiState.activeTab == 1,
+                                            onClick = { viewModel.setTab(1) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Tools",
+                                            icon = Icons.Default.Build,
+                                            selected = uiState.activeTab == 2,
+                                            onClick = { viewModel.setTab(2) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Files",
+                                            icon = Icons.Default.Folder,
+                                            selected = uiState.activeTab == 3,
+                                            onClick = { viewModel.setTab(3) }
+                                        ),
+                                        NavigationItem(
+                                            title = "Settings",
+                                            icon = Icons.Default.Settings,
+                                            selected = uiState.activeTab == 4,
+                                            onClick = { viewModel.setTab(4) }
+                                        )
+                                    )
+                                )
+                            }
                         }
                     }
                 ) { innerPadding ->
@@ -304,6 +351,11 @@ fun MainContentColumn(
                 onRenameFile = { file, name -> viewModel.renameFile(file, name) },
                 onDeleteFile = { file -> viewModel.deleteFile(file) },
                 onToggleExecutable = { file -> viewModel.toggleFileExecutable(file) },
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
+            4 -> ThemeSettingsScreen(
+                currentTheme = uiState.theme,
+                onThemeSelected = { viewModel.setTheme(it) },
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
         }
