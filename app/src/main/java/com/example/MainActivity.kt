@@ -90,8 +90,8 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
+            val uiState by viewModel.uiState.collectAsState()
             MyApplicationTheme(appTheme = uiState.theme) {
-                val uiState by viewModel.uiState.collectAsState()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
