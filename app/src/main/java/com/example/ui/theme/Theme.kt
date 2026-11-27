@@ -41,8 +41,8 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = TealSurfaceVariantDark
 )
 
-// Liquid Glass: fixed dark instrument palette, mono-labeled console identity.
-private val GlassColorScheme = darkColorScheme(
+// Mono Console: flat dark palette for long flash sessions.
+private val MonoConsoleColorScheme = darkColorScheme(
     primary = InstrumentAccent,
     onPrimary = Color(0xFF062B1B),
     primaryContainer = Color(0xFF1C5A3D),
@@ -109,7 +109,7 @@ fun MyApplicationTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when (appTheme) {
-        AppTheme.LIQUID_GLASS -> GlassColorScheme
+        AppTheme.MONO_CONSOLE -> MonoConsoleColorScheme
         AppTheme.M3_EXPRESSIVE ->
             if (darkTheme) ExpressiveDarkColorScheme else ExpressiveLightColorScheme
         AppTheme.MATERIAL ->

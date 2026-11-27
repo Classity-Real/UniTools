@@ -61,7 +61,6 @@ import com.example.ui.screens.FlashingScreen
 import com.example.ui.screens.ToolsScreen
 import com.example.ui.screens.ThemeSettingsScreen
 import com.example.ui.components.KernelSuNavigationBar
-import com.example.ui.components.LiquidGlassNavigationBar
 import com.example.ui.theme.AppTheme
 import com.example.ui.components.NavigationItem
 import androidx.compose.foundation.background
@@ -133,8 +132,7 @@ class MainActivity : ComponentActivity() {
                                 .navigationBarsPadding(),
                             contentAlignment = Alignment.Center
                         ) {
-                            if (uiState.theme == AppTheme.LIQUID_GLASS) {
-                                LiquidGlassNavigationBar(
+                            KernelSuNavigationBar(
                                     items = listOf(
                                         NavigationItem(
                                             title = "Flashing",
@@ -168,42 +166,6 @@ class MainActivity : ComponentActivity() {
                                         )
                                     )
                                 )
-                            } else {
-                                KernelSuNavigationBar(
-                                    items = listOf(
-                                        NavigationItem(
-                                            title = "Flashing",
-                                            icon = Icons.Default.FlashOn,
-                                            selected = uiState.activeTab == 0,
-                                            onClick = { viewModel.setTab(0) }
-                                        ),
-                                        NavigationItem(
-                                            title = "Backup",
-                                            icon = Icons.Default.Backup,
-                                            selected = uiState.activeTab == 1,
-                                            onClick = { viewModel.setTab(1) }
-                                        ),
-                                        NavigationItem(
-                                            title = "Tools",
-                                            icon = Icons.Default.Build,
-                                            selected = uiState.activeTab == 2,
-                                            onClick = { viewModel.setTab(2) }
-                                        ),
-                                        NavigationItem(
-                                            title = "Files",
-                                            icon = Icons.Default.Folder,
-                                            selected = uiState.activeTab == 3,
-                                            onClick = { viewModel.setTab(3) }
-                                        ),
-                                        NavigationItem(
-                                            title = "Settings",
-                                            icon = Icons.Default.Settings,
-                                            selected = uiState.activeTab == 4,
-                                            onClick = { viewModel.setTab(4) }
-                                        )
-                                    )
-                                )
-                            }
                         }
                     }
                 ) { innerPadding ->
@@ -354,8 +316,8 @@ fun MainContentColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
             4 -> ThemeSettingsScreen(
-                currentTheme = uiState.theme,
-                onThemeSelected = { viewModel.setTheme(it) },
+                selected = uiState.theme,
+                onSelect = { viewModel.setTheme(it) },
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
         }
