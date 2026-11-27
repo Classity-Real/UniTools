@@ -34,7 +34,7 @@ permissions:
 jobs:
   build:
     name: Build APK
-    runs-on: namespace-profile-pmos-smart
+    runs-on: namespace-profile-workshop
 
     steps:
       - name: Checkout repository
